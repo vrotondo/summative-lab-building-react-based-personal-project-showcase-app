@@ -1,0 +1,58 @@
+{
+    "store_info": [
+        {
+            "id": 1,
+            "name": "Tech Gadgets Hub",
+            "description": "Your one-stop shop for all the latest tech gadgets and accessories",
+            "phone_number": "555-1234",
+            "email": "contact@techgadgetshub.com"
+        }
+    ],
+    "products": [
+        {
+            "id": 1,
+            "name": "Ultra Smart Watch",
+            "description": "Track your fitness, receive notifications, and more with this state-of-the-art smartwatch",
+            "category": "Wearables",
+            "price": 199.99,
+            "stock": 45,
+            "image": "https://example.com/smartwatch.jpg"
+        },
+        {
+            "id": 2,
+            "name": "Wireless Noise-Canceling Headphones",
+            "description": "Premium sound quality with active noise cancellation technology",
+            "category": "Audio",
+            "price": 249.99,
+            "stock": 30,
+            "image": "https://example.com/headphones.jpg"
+        },
+        {
+            "id": 3,
+            "name": "Ultra-Thin Laptop",
+            "description": "Powerful performance in a sleek, lightweight design",
+            "category": "Computers",
+            "price": 899.99,
+            "stock": 15,
+            "image": "https://example.com/laptop.jpg"
+        },
+        {
+            "id": 4,
+            "name": "4K Gaming Monitor",
+            "description": "Immersive gaming experience with ultra-high definition display",
+            "category": "Monitors",
+            "price": 349.99,
+            "stock": 20,
+            "image": "https://example.com/monitor.jpg"
+        },
+        {
+            "id": 5,
+            "name": "Smart Home Hub",
+            "description": "Control all your smart home devices from one central hub",
+            "category": "Smart Home",
+            "price": 129.99,
+            "stock": 25,
+            "image": "https://example.com/smarthome.jpg"
+        }
+    ]
+}
