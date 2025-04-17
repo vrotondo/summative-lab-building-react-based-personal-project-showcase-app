@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
 import { ProductContext } from '../../context/ProductContext'
 import useSearch from '../../hooks/useSearch'
 
@@ -48,12 +48,16 @@ describe('useSearch Custom Hook', () => {
         vi.useFakeTimers()
     })
 
+    afterEach(() => {
+        vi.restoreAllMocks()
+    })
+
     it('initializes with empty results and provided initial query', () => {
         const { result } = renderHook(() => useSearch('initial'), { wrapper })
 
         expect(result.current.query).toBe('initial')
         expect(result.current.results).toEqual([])
-        expect(result.current.isSearching).toBe(false)
+        expect(result.current.isSearching).toBe(true) // Now true with initial query
     })
 
     it('updates query when handleSearchChange is called', () => {
@@ -81,14 +85,13 @@ describe('useSearch Custom Hook', () => {
             vi.runAllTimers()
         })
 
-        await waitFor(() => {
-            expect(result.current.isSearching).toBe(false)
-            expect(result.current.results).toHaveLength(1)
-            expect(result.current.results[0].id).toBe(1) // Smart Watch
-        })
+        // Now the search should be completed
+        expect(result.current.isSearching).toBe(false)
+        expect(result.current.results).toHaveLength(1)
+        expect(result.current.results[0].id).toBe(1) // Smart Watch
     })
 
-    it('matches products by name, description, or category', async () => {
+    it('matches products by name, description, or category', () => {
         const { result } = renderHook(() => useSearch(), { wrapper })
 
         // Search in category
@@ -96,27 +99,25 @@ describe('useSearch Custom Hook', () => {
             result.current.handleSearchChange(mockEvent('audio'))
         })
 
+        // Fast-forward timer
         act(() => {
             vi.runAllTimers()
         })
 
-        await waitFor(() => {
-            expect(result.current.results).toHaveLength(2) // Both Audio category products
-        })
+        expect(result.current.results).toHaveLength(2) // Both Audio category products
 
         // Search in description
         act(() => {
             result.current.handleSearchChange(mockEvent('bass'))
         })
 
+        // Fast-forward timer
         act(() => {
             vi.runAllTimers()
         })
 
-        await waitFor(() => {
-            expect(result.current.results).toHaveLength(1) // Only the bluetooth speaker
-            expect(result.current.results[0].id).toBe(3)
-        })
+        expect(result.current.results).toHaveLength(1) // Only the bluetooth speaker
+        expect(result.current.results[0].id).toBe(3)
     })
 
     it('clears search results when clearSearch is called', () => {
@@ -133,9 +134,10 @@ describe('useSearch Custom Hook', () => {
 
         expect(result.current.query).toBe('')
         expect(result.current.results).toEqual([])
+        expect(result.current.isSearching).toBe(false) // Should be false after clearing
     })
 
-    it('returns empty results for empty query', async () => {
+    it('returns empty results for empty query', () => {
         const { result } = renderHook(() => useSearch('audio'), { wrapper })
 
         // Fast-forward timer to complete initial search
@@ -150,5 +152,6 @@ describe('useSearch Custom Hook', () => {
 
         expect(result.current.query).toBe('')
         expect(result.current.results).toEqual([])
+        expect(result.current.isSearching).toBe(false)
     })
 })

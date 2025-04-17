@@ -1,5 +1,5 @@
-// src/hooks/useSearch.js
-import { useState, useEffect, useContext, useCallback } from 'react'
+// src/hooks/useSearch.jsx
+import { useState, useEffect, useContext } from 'react'
 import { ProductContext } from '../context/ProductContext'
 
 /**
@@ -10,7 +10,7 @@ import { ProductContext } from '../context/ProductContext'
 const useSearch = (initialQuery = '') => {
     const [query, setQuery] = useState(initialQuery)
     const [results, setResults] = useState([])
-    const [isSearching, setIsSearching] = useState(false)
+    const [isSearching, setIsSearching] = useState(initialQuery ? true : false)
     const { products } = useContext(ProductContext)
 
     // Handle search logic
@@ -21,48 +21,42 @@ const useSearch = (initialQuery = '') => {
             return
         }
 
-        // Don't search if products aren't loaded yet
-        if (!products || products.length === 0) {
-            return
-        }
-
         setIsSearching(true)
 
-        // Simulate search delay to avoid too many updates during typing
+        // Simulate search delay
         const timer = setTimeout(() => {
-            const searchTerm = query.toLowerCase().trim()
-
             const filtered = products.filter(product =>
-                (product.name && product.name.toLowerCase().includes(searchTerm)) ||
-                (product.description && product.description.toLowerCase().includes(searchTerm)) ||
-                (product.category && product.category.toLowerCase().includes(searchTerm))
+                product.name.toLowerCase().includes(query.toLowerCase()) ||
+                product.description.toLowerCase().includes(query.toLowerCase()) ||
+                product.category.toLowerCase().includes(query.toLowerCase())
             )
-
             setResults(filtered)
             setIsSearching(false)
         }, 300)
 
+        // Cleanup function to clear the timeout if the component unmounts
+        // or if the effect runs again before the timeout completes
         return () => clearTimeout(timer)
     }, [query, products])
 
     // Handle input change
-    const handleSearchChange = useCallback((e) => {
+    const handleSearchChange = (e) => {
         setQuery(e.target.value)
-    }, [])
+    }
 
     // Clear search
-    const clearSearch = useCallback(() => {
+    const clearSearch = () => {
         setQuery('')
         setResults([])
-    }, [])
+        setIsSearching(false)
+    }
 
     return {
         query,
         results,
         isSearching,
         handleSearchChange,
-        clearSearch,
-        setQuery // Expose setQuery for direct updates
+        clearSearch
     }
 }
 
