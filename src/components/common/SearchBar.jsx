@@ -1,4 +1,3 @@
-// src/components/common/SearchBar.jsx
 import PropTypes from 'prop-types'
 
 const SearchBar = ({ query, onChange, onClear, placeholder }) => {
