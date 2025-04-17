@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import ProductCard from '../components/products/ProductCard'
+import ProductCard from '../../components/products/ProductCard';
 
 // Mock product data
 const mockProduct = {

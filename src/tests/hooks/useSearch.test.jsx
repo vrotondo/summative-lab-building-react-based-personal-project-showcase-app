@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { ProductContext } from '../context/ProductContext'
-import useSearch from '../hooks/useSearch'
+import { ProductContext } from '../../context/ProductContext';
+import useSearch from '../../hooks/useSearch';
 
 // Mock product data
 const mockProducts = [

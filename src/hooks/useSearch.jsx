@@ -1,3 +1,4 @@
+// src/hooks/useSearch.js
 import { useState, useEffect, useContext } from 'react'
 import { ProductContext } from '../context/ProductContext'
 
@@ -16,6 +17,7 @@ const useSearch = (initialQuery = '') => {
     useEffect(() => {
         if (!query.trim()) {
             setResults([])
+            setIsSearching(false)
             return
         }
 

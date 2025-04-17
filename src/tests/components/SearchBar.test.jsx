@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import SearchBar from '../components/common/SearchBar'
+import SearchBar from '../../components/common/SearchBar';
 
 describe('SearchBar Component', () => {
     it('renders correctly with empty query', () => {

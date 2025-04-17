@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductContext } from '../context/ProductContext'
 import useSearch from '../hooks/useSearch'
@@ -12,7 +12,7 @@ const Home = () => {
     const [storeInfo, setStoreInfo] = useState(null)
 
     // Fetch store information
-    useState(() => {
+    useEffect(() => {
         const fetchStoreInfo = async () => {
             try {
                 const response = await fetch('http://localhost:3000/store_info')
