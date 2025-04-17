@@ -7,36 +7,47 @@ import Home from './pages/Home'
 import ProductForm from './pages/ProductForm'
 import ProductDetail from './pages/ProductDetail'
 import NotFound from './pages/NotFound'
+import apiService from './services/apiService'
 import './App.css'
 
 function App() {
   const [products, setProducts] = useState([])
+  const [storeInfo, setStoreInfo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('http://localhost:3000/products')
-        if (!response.ok) {
-          throw new Error('Failed to fetch products')
-        }
-        const data = await response.json()
-        setProducts(data)
+        // Fetch products and store info concurrently for better performance
+        const [productsData, storeInfoData] = await Promise.all([
+          apiService.getProducts(),
+          apiService.getStoreInfo()
+        ])
+
+        setProducts(productsData)
+        setStoreInfo(storeInfoData[0]) // Store info is in an array
       } catch (err) {
         setError(err.message)
-        console.error('Error fetching products:', err)
+        console.error('Error fetching initial data:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProducts()
+    fetchInitialData()
   }, [])
 
   return (
-    <ProductContext.Provider value={{ products, setProducts, loading, error }}>
+    <ProductContext.Provider value={{
+      products,
+      setProducts,
+      storeInfo,
+      setStoreInfo,
+      loading,
+      error
+    }}>
       <Router>
         <div className="app-container">
           <Header />

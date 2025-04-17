@@ -2,6 +2,16 @@ import { useState, useEffect, useContext, useId } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ProductContext } from '../context/ProductContext'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import apiService from '../services/apiService'
+
+const initialFormState = {
+    name: '',
+    description: '',
+    category: '',
+    price: '',
+    stock: '',
+    image: ''
+}
 
 const ProductForm = () => {
     const { id } = useParams()
@@ -18,15 +28,9 @@ const ProductForm = () => {
     const imageId = useId()
 
     // Form state
-    const [formState, setFormState] = useState({
-        name: '',
-        description: '',
-        category: '',
-        price: '',
-        stock: '',
-        image: ''
-    })
+    const [formState, setFormState] = useState(initialFormState)
     const [loading, setLoading] = useState(false)
+    const [initialLoading, setInitialLoading] = useState(isEditMode)
     const [error, setError] = useState(null)
 
     // Fetch product data if in edit mode
@@ -34,18 +38,14 @@ const ProductForm = () => {
         if (isEditMode) {
             const fetchProduct = async () => {
                 try {
-                    setLoading(true)
-                    const response = await fetch(`http://localhost:3000/products/${id}`)
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch product')
-                    }
-                    const productData = await response.json()
+                    setInitialLoading(true)
+                    const productData = await apiService.getProduct(id)
                     setFormState(productData)
                 } catch (err) {
-                    setError(err.message)
+                    setError(`Error loading product: ${err.message}`)
                     console.error('Error fetching product:', err)
                 } finally {
-                    setLoading(false)
+                    setInitialLoading(false)
                 }
             }
 
@@ -79,55 +79,31 @@ const ProductForm = () => {
 
             if (isEditMode) {
                 // Update existing product
-                response = await fetch(`http://localhost:3000/products/${id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(productData)
-                })
-
-                if (!response.ok) {
-                    throw new Error('Failed to update product')
-                }
-
-                const updatedProduct = await response.json()
+                response = await apiService.updateProduct(id, productData)
 
                 // Update products in context
                 setProducts(products.map(product =>
-                    product.id === updatedProduct.id ? updatedProduct : product
+                    product.id === response.id ? response : product
                 ))
             } else {
                 // Create new product
-                response = await fetch('http://localhost:3000/products', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(productData)
-                })
-
-                if (!response.ok) {
-                    throw new Error('Failed to create product')
-                }
-
-                const newProduct = await response.json()
+                response = await apiService.createProduct(productData)
 
                 // Add new product to context
-                setProducts([...products, newProduct])
+                setProducts([...products, response])
             }
 
             // Navigate back to product list
             navigate('/')
         } catch (err) {
-            setError(err.message)
+            setError(`Failed to ${isEditMode ? 'update' : 'create'} product: ${err.message}`)
             console.error('Error saving product:', err)
         } finally {
             setLoading(false)
         }
     }
 
-    if (loading && isEditMode) {
+    if (initialLoading) {
         return <LoadingSpinner />
     }
 
@@ -136,7 +112,9 @@ const ProductForm = () => {
             <h1>{isEditMode ? 'Edit Product' : 'Add New Product'}</h1>
 
             {error && (
-                <div className="error-message">Error: {error}</div>
+                <div className="error-message">
+                    <p>{error}</p>
+                </div>
             )}
 
             <form onSubmit={handleSubmit} className="product-form">
@@ -208,7 +186,7 @@ const ProductForm = () => {
                         type="url"
                         id={imageId}
                         name="image"
-                        value={formState.image}
+                        value={formState.image || ''}
                         onChange={handleInputChange}
                         placeholder="https://example.com/image.jpg"
                     />
@@ -217,7 +195,7 @@ const ProductForm = () => {
                 <div className="form-actions">
                     <button
                         type="button"
-                        className="btn btn-secondary"
+                        className="btn btn-outline"
                         onClick={() => navigate('/')}
                     >
                         Cancel

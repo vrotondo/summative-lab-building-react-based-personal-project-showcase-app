@@ -1,27 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { ProductContext } from '../../context/ProductContext'
 
 const Footer = () => {
-    const [storeInfo, setStoreInfo] = useState(null)
+    const { storeInfo } = useContext(ProductContext)
     const [year] = useState(new Date().getFullYear())
-
-    // Fetch store information
-    useEffect(() => {
-        const fetchStoreInfo = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/store_info')
-                if (!response.ok) {
-                    throw new Error('Failed to fetch store information')
-                }
-                const data = await response.json()
-                setStoreInfo(data[0])
-            } catch (err) {
-                console.error('Error fetching store info:', err)
-            }
-        }
-
-        fetchStoreInfo()
-    }, [])
 
     return (
         <footer className="footer">

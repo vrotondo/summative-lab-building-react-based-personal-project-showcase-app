@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react'
+import { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductContext } from '../context/ProductContext'
 import useSearch from '../hooks/useSearch'
@@ -7,34 +7,21 @@ import SearchBar from '../components/common/SearchBar'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 
 const Home = () => {
-    const { products, loading, error } = useContext(ProductContext)
+    const { products, storeInfo, loading, error } = useContext(ProductContext)
     const { query, results, isSearching, handleSearchChange, clearSearch } = useSearch()
-    const [storeInfo, setStoreInfo] = useState(null)
-
-    // Fetch store information
-    useEffect(() => {
-        const fetchStoreInfo = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/store_info')
-                if (!response.ok) {
-                    throw new Error('Failed to fetch store information')
-                }
-                const data = await response.json()
-                setStoreInfo(data[0])
-            } catch (err) {
-                console.error('Error fetching store info:', err)
-            }
-        }
-
-        fetchStoreInfo()
-    }, [])
 
     if (loading) {
         return <LoadingSpinner />
     }
 
     if (error) {
-        return <div className="error-message">Error: {error}</div>
+        return (
+            <div className="error-message">
+                <h2>Error Loading Data</h2>
+                <p>{error}</p>
+                <p>Please try refreshing the page or contact support if the problem persists.</p>
+            </div>
+        )
     }
 
     // Determine which products to display
@@ -75,7 +62,11 @@ const Home = () => {
                     </div>
                 ) : (
                     <div className="no-products">
-                        {query ? 'No products match your search' : 'No products available'}
+                        {query ? (
+                            <p>No products match your search criteria. Try a different search term.</p>
+                        ) : (
+                            <p>No products available. Click "Add New Product" to create one.</p>
+                        )}
                     </div>
                 )}
             </section>

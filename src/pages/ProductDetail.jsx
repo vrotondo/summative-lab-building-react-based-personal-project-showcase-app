@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ProductContext } from '../context/ProductContext'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import apiService from '../services/apiService'
 
 const ProductDetail = () => {
     const { id } = useParams()
@@ -18,14 +19,10 @@ const ProductDetail = () => {
         const fetchProduct = async () => {
             try {
                 setLoading(true)
-                const response = await fetch(`http://localhost:3000/products/${id}`)
-                if (!response.ok) {
-                    throw new Error('Failed to fetch product details')
-                }
-                const data = await response.json()
+                const data = await apiService.getProduct(id)
                 setProduct(data)
             } catch (err) {
-                setError(err.message)
+                setError(`Error loading product: ${err.message}`)
                 console.error('Error fetching product details:', err)
             } finally {
                 setLoading(false)
@@ -43,19 +40,13 @@ const ProductDetail = () => {
 
         try {
             setIsDeleting(true)
-            const response = await fetch(`http://localhost:3000/products/${id}`, {
-                method: 'DELETE'
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to delete product')
-            }
+            await apiService.deleteProduct(id)
 
             // Update products in context
             setProducts(products.filter(p => p.id !== parseInt(id)))
-            navigate('/')
+            navigate('/', { replace: true })
         } catch (err) {
-            setError(err.message)
+            setError(`Failed to delete product: ${err.message}`)
             console.error('Error deleting product:', err)
             setIsDeleting(false)
         }
@@ -66,11 +57,27 @@ const ProductDetail = () => {
     }
 
     if (error) {
-        return <div className="error-message">Error: {error}</div>
+        return (
+            <div className="error-message">
+                <h2>Error</h2>
+                <p>{error}</p>
+                <Link to="/" className="btn btn-primary">
+                    Back to Products
+                </Link>
+            </div>
+        )
     }
 
     if (!product) {
-        return <div className="not-found">Product not found</div>
+        return (
+            <div className="not-found">
+                <h2>Product Not Found</h2>
+                <p>The product you're looking for doesn't exist or has been removed.</p>
+                <Link to="/" className="btn btn-primary">
+                    Back to Products
+                </Link>
+            </div>
+        )
     }
 
     return (

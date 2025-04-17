@@ -1,5 +1,5 @@
 // src/hooks/useSearch.js
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useCallback } from 'react'
 import { ProductContext } from '../context/ProductContext'
 
 /**
@@ -21,15 +21,23 @@ const useSearch = (initialQuery = '') => {
             return
         }
 
+        // Don't search if products aren't loaded yet
+        if (!products || products.length === 0) {
+            return
+        }
+
         setIsSearching(true)
 
-        // Simulate search delay
+        // Simulate search delay to avoid too many updates during typing
         const timer = setTimeout(() => {
+            const searchTerm = query.toLowerCase().trim()
+
             const filtered = products.filter(product =>
-                product.name.toLowerCase().includes(query.toLowerCase()) ||
-                product.description.toLowerCase().includes(query.toLowerCase()) ||
-                product.category.toLowerCase().includes(query.toLowerCase())
+                (product.name && product.name.toLowerCase().includes(searchTerm)) ||
+                (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                (product.category && product.category.toLowerCase().includes(searchTerm))
             )
+
             setResults(filtered)
             setIsSearching(false)
         }, 300)
@@ -38,22 +46,23 @@ const useSearch = (initialQuery = '') => {
     }, [query, products])
 
     // Handle input change
-    const handleSearchChange = (e) => {
+    const handleSearchChange = useCallback((e) => {
         setQuery(e.target.value)
-    }
+    }, [])
 
     // Clear search
-    const clearSearch = () => {
+    const clearSearch = useCallback(() => {
         setQuery('')
         setResults([])
-    }
+    }, [])
 
     return {
         query,
         results,
         isSearching,
         handleSearchChange,
-        clearSearch
+        clearSearch,
+        setQuery // Expose setQuery for direct updates
     }
 }
 
